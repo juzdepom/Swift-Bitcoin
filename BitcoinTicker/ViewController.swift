@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Alamofire
+import SwiftyJSON
 
 class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
     
@@ -18,14 +20,46 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     @IBOutlet weak var bitcoinPriceLabel: UILabel!
     @IBOutlet weak var currencyPicker: UIPickerView!
     
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         currencyPicker.delegate = self
         currencyPicker.dataSource = self
-        
-       
+        finalURL = baseURL + currencyArray[0]
+        getBitcoinPrice(url: finalURL)
+    }
+    
+    //MARK: - Networking
+    //    /***************************************************************/
+    func getBitcoinPrice(url: String) {
+        Alamofire.request(url, method: .get)
+            .responseJSON { response in
+                if response.result.isSuccess {
+                    let priceJSON: JSON = JSON(response.result.value!)
+                    print(type(of: priceJSON))
+                    //Updating labelJ
+                    print(priceJSON)
+                    print(priceJSON["last"].float)
+                    if priceJSON["last"] != JSON.null {
+                        self.bitcoinPriceLabel.text = String(describing: priceJSON["last"])
+                    } else {
+                        self.bitcoinPriceLabel.text = "Error"
+                    }
+                    self.updatePrice(json: priceJSON)
+                } else {
+                    print("Error: \(response.result.error!)")
+                    self.bitcoinPriceLabel.text = "Connection Issues"
+                }
+        }
+    }
+    
+    //    //MARK: - JSON Parsing
+    //    /***************************************************************/
+    func updatePrice(json: JSON){
+//        if let tempResult = json["main"] {
+//            //change
+//        } else {
+//            //there was an error
+//        }
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -41,41 +75,14 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print(currencyArray[row])
+        finalURL = baseURL + currencyArray[row]
+        getBitcoinPrice(url: finalURL)
+        
     }
 
     
-    //TODO: Place your 3 UIPickerView delegate methods here
 
-//    
-//    //MARK: - Networking
-//    /***************************************************************/
-//    
-//    func getWeatherData(url: String, parameters: [String : String]) {
-//        
-//        Alamofire.request(url, method: .get, parameters: parameters)
-//            .responseJSON { response in
-//                if response.result.isSuccess {
-//
-//                    print("Sucess! Got the weather data")
-//                    let weatherJSON : JSON = JSON(response.result.value!)
-//
-//                    self.updateWeatherData(json: weatherJSON)
-//
-//                } else {
-//                    print("Error: \(String(describing: response.result.error))")
-//                    self.bitcoinPriceLabel.text = "Connection Issues"
-//                }
-//            }
-//
-//    }
-//
-//    
-//    
-//    
-//    
-//    //MARK: - JSON Parsing
-//    /***************************************************************/
+
 //    
 //    func updateWeatherData(json : JSON) {
 //        
