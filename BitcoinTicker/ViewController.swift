@@ -6,6 +6,7 @@
 //  Copyright © 2016 London App Brewery. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import Alamofire
 import SwiftyJSON
@@ -26,12 +27,12 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         currencyPicker.delegate = self
         currencyPicker.dataSource = self
         finalURL = baseURL + currencyArray[0]
-        getBitcoinPrice(url: finalURL)
+        getBitcoinPrice(url: finalURL, index: 0)
     }
     
     //MARK: - Networking
     //    /***************************************************************/
-    func getBitcoinPrice(url: String) {
+    func getBitcoinPrice(url: String, index: Int) {
         Alamofire.request(url, method: .get)
             .responseJSON { response in
                 if response.result.isSuccess {
@@ -39,9 +40,11 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
                     print(type(of: priceJSON))
                     //Updating labelJ
                     print(priceJSON)
-                    print(priceJSON["last"].float)
                     if priceJSON["last"] != JSON.null {
-                        self.bitcoinPriceLabel.text = String(describing: priceJSON["last"])
+                        let price = priceJSON["last"].float
+                        let commaPrice = self.addCommas(number: price!)
+                        let text = self.currencySymbol[index] + " " + commaPrice
+                        self.bitcoinPriceLabel.text = text;
                     } else {
                         self.bitcoinPriceLabel.text = "Error"
                     }
@@ -51,6 +54,16 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
                     self.bitcoinPriceLabel.text = "Connection Issues"
                 }
         }
+    }
+    
+    func addCommas(number: Float) -> String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = NumberFormatter.Style.decimal
+        guard let formattedNumber = numberFormatter.string(from: NSNumber(value:number)) else {
+                print("Error with adding commas")
+                return String(number)
+            }
+        return formattedNumber
     }
     
     //    //MARK: - JSON Parsing
@@ -77,7 +90,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         finalURL = baseURL + currencyArray[row]
-        getBitcoinPrice(url: finalURL)
+        getBitcoinPrice(url: finalURL, index: row)
         
     }
 
