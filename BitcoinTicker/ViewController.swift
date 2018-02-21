@@ -40,8 +40,8 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
                     print(type(of: priceJSON))
                     //Updating labelJ
                     print(priceJSON)
-                    if priceJSON["last"] != JSON.null {
-                        let price = priceJSON["last"].float
+                    if priceJSON["ask"] != JSON.null {
+                        let price = priceJSON["ask"].float
                         let commaPrice = self.addCommas(number: price!)
                         let text = self.currencySymbol[index] + " " + commaPrice
                         self.bitcoinPriceLabel.text = text;
